@@ -6,7 +6,8 @@ import { adjustImage, adjustLabel, adjustPalette, type Adjustments } from '../li
 import { downloadBlob } from '../lib/download';
 import { encodePng } from '../lib/image';
 import type { OutputOptions } from '../lib/output';
-import { exportName, exportPalette, exportPng } from './export';
+import { exportName, exportPalette, exportPng, pngName } from './export';
+import { ExportMenu } from './ExportMenu';
 import { PaletteSwatches } from './PaletteSwatches';
 import type { ResultView } from './useRun';
 
@@ -44,6 +45,23 @@ function useAdjustedUrl(result: ResultView, adjust: Adjustments): string | null 
   return key === '' ? result.url : shown;
 }
 
+/** A message that replaces the caption for a few seconds. */
+function useStatus(): { text: string | null; show: (text: string) => void } {
+  const [text, setText] = useState<string | null>(null);
+  useEffect(() => {
+    if (text === null) {
+      return undefined;
+    }
+    const timer = setTimeout(() => {
+      setText(null);
+    }, 3000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [text]);
+  return { text, show: setText };
+}
+
 export function ResultCard({
   result,
   caption,
@@ -60,6 +78,7 @@ export function ResultCard({
     [result.palette, output.adjust],
   );
   const name = exportName(result, output);
+  const status = useStatus();
   return (
     <Card withBorder padding="xs" data-testid="result-card">
       <Card.Section>
@@ -77,8 +96,8 @@ export function ResultCard({
         />
       </Card.Section>
       <Group justify="space-between" mt="xs" wrap="nowrap" gap={4}>
-        <Text size="xs" c="dimmed">
-          {caption}
+        <Text size="xs" c="dimmed" data-testid="result-caption">
+          {status.text ?? caption}
         </Text>
         <Group gap={2} wrap="nowrap">
           <Tooltip label="Download palette JSON" withArrow>
@@ -100,13 +119,14 @@ export function ResultCard({
               aria-label="Download PNG"
               onClick={() => {
                 void exportPng(result, output).then((blob) => {
-                  downloadBlob(blob, `${name}.png`);
+                  downloadBlob(blob, `${pngName(result, output)}.png`);
                 });
               }}
             >
               <IconDownload size={16} />
             </ActionIcon>
           </Tooltip>
+          <ExportMenu result={result} output={output} onStatus={status.show} />
         </Group>
       </Group>
       <PaletteSwatches colors={palette} size={12} />

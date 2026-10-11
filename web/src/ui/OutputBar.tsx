@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { ADJUST_RANGE, formatPercent } from '../lib/adjust';
 import { downloadBlob, zipFiles } from '../lib/download';
 import { EXPORT_SCALES, type OutputOptions } from '../lib/output';
-import { exportName, exportPalette, exportPng } from './export';
+import { exportName, exportPalette, exportPng, pngName } from './export';
 import { HELP } from './help';
 import type { RunState } from './useRun';
 import { WithHelp } from './WithHelp';
@@ -26,7 +26,7 @@ async function downloadAll(
 ): Promise<void> {
   const files = await Promise.all(
     state.results.flatMap((r) => [
-      exportPng(r, output).then((blob) => ({ name: `${exportName(r, output)}.png`, blob })),
+      exportPng(r, output).then((blob) => ({ name: `${pngName(r, output)}.png`, blob })),
       Promise.resolve({
         name: `palettes/${exportName(r, output)}.palette.json`,
         blob: exportPalette(r, output),

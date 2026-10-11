@@ -39,6 +39,12 @@ pool of Web Workers.
    alike, switch without re-running, and name the files
    (`_bright20_sat10`).
 
+Downloads default to 4× (each result pixel becomes a 4 × 4 square); the
+download size applies to every result and to "Download all". Each result's
+⋯ menu copies it to the clipboard or downloads it at any scale on its own.
+PNG names end in their scale (`_4x`, `_orig` for original size). Copying
+images needs https or localhost.
+
 A forced palette (a palette JSON file, or an image whose distinct colors form
 the palette) skips the search.
 

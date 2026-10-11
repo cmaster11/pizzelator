@@ -18,3 +18,8 @@ export interface OutputOptions {
 }
 
 export const DEFAULT_OUTPUT: OutputOptions = { scale: '4', adjust: DEFAULT_ADJUSTMENTS };
+
+/** The file-name suffix for a PNG export at `scale`: `_4x`, or `_orig` for original size. */
+export function scaleLabel(scale: ExportScale): string {
+  return scale === 'original' ? '_orig' : `_${scale}x`;
+}

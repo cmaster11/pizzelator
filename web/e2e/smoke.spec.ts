@@ -45,25 +45,25 @@ test('paints an image and downloads a result at 4× and at original size', async
   await expect(cards).toHaveCount(4);
   await expect(page.getByTestId('run-summary')).toContainText('5 images · 2/2 runs');
 
-  const downloadSize = async (): Promise<[number, number]> => {
+  const downloadSize = async (scale: string): Promise<[number, number]> => {
     const downloadPromise = page.waitForEvent('download');
     await cards.first().getByRole('button', { name: 'Download PNG' }).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(
-      /^pizza_t64_lsd0\.6_cie94_tol\d\.\d{6}_bright20_sat10\.png$/,
+      new RegExp(`^pizza_t64_lsd0\\.6_cie94_tol\\d\\.\\d{6}_bright20_sat10_${scale}\\.png$`),
     );
     return pngSize(await readFile(await download.path()));
   };
   // The result is 63×63 downsampled pixels at step 17 (pizza_lsd_cie94). Downloads
   // default to 4×.
-  expect(await downloadSize()).toEqual([252, 252]);
+  expect(await downloadSize('4x')).toEqual([252, 252]);
   await page.getByRole('radiogroup', { name: 'Download scale' }).getByText('Original size').click();
-  expect(await downloadSize()).toEqual([1071, 1071]);
+  expect(await downloadSize('orig')).toEqual([1071, 1071]);
 
   const clusterDownload = page.waitForEvent('download');
   await clusters.getByRole('button', { name: 'Download PNG' }).click();
   expect((await clusterDownload).suggestedFilename()).toBe(
-    'pizza_t64_lsd0.6_cluster_cie94_bright20_sat10.png',
+    'pizza_t64_lsd0.6_cluster_cie94_bright20_sat10_orig.png',
   );
 
   expect(errors).toEqual([]);
