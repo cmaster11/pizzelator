@@ -3,6 +3,8 @@
 **https://cmaster11.github.io/pizzelator/** · by
 [cmaster11](https://github.com/cmaster11)
 
+<img src="docs/screenshot.png" width="400" alt="Four pixel-art versions of a city street photo, each with its palette, as Pizzelator shows them on a phone">
+
 Turns an image into pixel art, entirely in the browser. You pick an image and
 the parameters; the page downsamples the image, searches for palettes with an
 exact number of colors, redraws the image with each palette, and lets you
