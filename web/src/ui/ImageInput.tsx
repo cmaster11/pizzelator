@@ -83,9 +83,10 @@ export function ImageInput({
       </Dropzone>
       <Group justify="center">
         <Button
-          size="xs"
-          variant="subtle"
-          leftSection={<IconBuildingSkyscraper size={16} />}
+          size="sm"
+          variant="light"
+          fw={700}
+          leftSection={<IconBuildingSkyscraper size={18} />}
           onClick={onExample}
           disabled={disabled || loading}
         >

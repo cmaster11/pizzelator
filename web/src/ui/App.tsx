@@ -20,6 +20,12 @@ function baseNameOf(fileName: string): string {
   return fileName.replace(/\.[^.]+$/, '').replace(/[^\w-]+/g, '_') || 'image';
 }
 
+/**
+ * Below lg the KiCI link takes a second header row: 88px tall where its text
+ * fits on one line, 102px on phones where it wraps (measured at 360 to 1440px).
+ */
+const HEADER_HEIGHT = { base: 104, xs: 90, lg: 56 };
+
 const storage = (): Storage => window.localStorage;
 
 /** The settings saved by the previous visit, read once per page load. */
@@ -76,7 +82,7 @@ export function App() {
   const baseName = source === null ? 'image' : baseNameOf(source.info.name) + cropLabel(crop);
 
   return (
-    <AppShell header={{ height: 56 }} padding="md">
+    <AppShell header={{ height: HEADER_HEIGHT }} padding="md">
       <AppShell.Header>
         <AppHeader />
       </AppShell.Header>
@@ -88,8 +94,8 @@ export function App() {
               withBorder
               p="md"
               pos={{ base: 'static', md: 'sticky' }}
-              top={72}
-              mah={{ md: 'calc(100dvh - 88px)' }}
+              top="calc(var(--app-shell-header-height) + 16px)"
+              mah={{ md: 'calc(100dvh - var(--app-shell-header-height) - 32px)' }}
               style={{ overflowY: 'auto' }}
             >
               <Stack gap="md">
