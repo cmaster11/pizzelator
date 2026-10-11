@@ -25,15 +25,20 @@ test('the favicon is a 32 × 32 PNG served under the base path', async ({ page }
   expect(pngSize(await response.body())).toEqual([32, 32]);
 });
 
-test('the KiCI link keeps its full text and the header fits at every width', async ({ page }) => {
+test('the KiCI link shows its hook when wide and the header fits when narrow', async ({ page }) => {
   await page.goto('./');
   const kici = page.getByRole('link', { name: /^KiCI/ });
   const header = page.getByRole('banner');
-  for (const width of [390, 1000, 1440]) {
+  const expected = [
+    [1440, 'KiCI: CI your LLM can develop and test autonomously'],
+    [1000, 'KiCI'],
+    [390, 'KiCI'],
+  ] as const;
+  for (const [width, name] of expected) {
     await page.setViewportSize({ width, height: 800 });
-    // fails-when: the link is shortened, doubled or missing at this width.
+    // fails-when: the link shows the wrong form, or is doubled or missing, at this width.
     await expect(kici).toHaveCount(1);
-    await expect(kici).toHaveAccessibleName('KiCI: CI your LLM can develop and test autonomously');
+    await expect(kici).toHaveAccessibleName(name);
     await expect(kici).toHaveAttribute('href', 'https://kici.dev');
     // fails-when: the header's contents spill out sideways or below its height.
     const fit = await header.evaluate((el) => {
@@ -48,5 +53,4 @@ test('the KiCI link keeps its full text and the header fits at every width', asy
     });
     expect(lines, `width ${String(width)}`).toBeLessThan(1.5);
   }
-  await expect(page.getByText('also by cmaster11 ·').filter({ visible: true })).toHaveCount(1);
 });

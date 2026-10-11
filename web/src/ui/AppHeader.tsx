@@ -1,10 +1,8 @@
 import {
   ActionIcon,
   Anchor,
-  Box,
   Button,
   Group,
-  Stack,
   Text,
   Title,
   useComputedColorScheme,
@@ -41,13 +39,12 @@ function ColorSchemeToggle() {
 
 /**
  * A link to the author's other project. A plain link: no tracking parameters
- * and nothing loaded from kici.dev. Its text is never shortened: on narrow
- * screens it has a header row of its own and wraps there.
+ * and nothing loaded from kici.dev. Narrow screens show the name only.
  */
 function KiciLink() {
   return (
-    <Group gap={6} wrap="nowrap" justify="center">
-      <Text size="xs" c="dimmed" visibleFrom="sm" style={{ whiteSpace: 'nowrap' }}>
+    <Group gap={6} wrap="nowrap">
+      <Text size="xs" c="dimmed" visibleFrom="lg" style={{ whiteSpace: 'nowrap' }}>
         also by cmaster11 ·
       </Text>
       <Button
@@ -57,12 +54,15 @@ function KiciLink() {
         rel="noreferrer"
         variant="light"
         size="compact-sm"
-        h="auto"
-        py={4}
         rightSection={<IconArrowUpRight size={14} />}
-        styles={{ label: { whiteSpace: 'normal' } }}
+        title={`KiCI: ${KICI_HOOK}`}
       >
-        KiCI: {KICI_HOOK}
+        <Text span inherit visibleFrom="lg">
+          KiCI: {KICI_HOOK}
+        </Text>
+        <Text span inherit hiddenFrom="lg">
+          KiCI
+        </Text>
       </Button>
     </Group>
   );
@@ -95,33 +95,26 @@ function StarOnGitHub() {
 /** The name, its author, the KiCI link, the star link and the color scheme toggle. */
 export function AppHeader() {
   return (
-    <Stack gap={0}>
-      <Group h={56} px="md" justify="space-between" wrap="nowrap">
-        <Group gap="xs" wrap="nowrap">
-          <Title order={3} fz={{ base: 'h4', sm: 'h3' }}>
-            Pizzelator
-          </Title>
-          <Text size="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }} data-testid="byline">
-            by{' '}
-            <Anchor href={AUTHOR_URL} target="_blank" rel="noreferrer" inherit>
-              cmaster11
-            </Anchor>
-          </Text>
-          <Text size="sm" c="dimmed" visibleFrom="xl">
-            · pixel art from any image, computed in your browser
-          </Text>
-        </Group>
-        <Group gap="xs" wrap="nowrap">
-          <Box visibleFrom="lg">
-            <KiciLink />
-          </Box>
-          <StarOnGitHub />
-          <ColorSchemeToggle />
-        </Group>
+    <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+      <Group gap="xs" wrap="nowrap">
+        <Title order={3} fz={{ base: 'h4', sm: 'h3' }}>
+          Pizzelator
+        </Title>
+        <Text size="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }} data-testid="byline">
+          by{' '}
+          <Anchor href={AUTHOR_URL} target="_blank" rel="noreferrer" inherit>
+            cmaster11
+          </Anchor>
+        </Text>
+        <Text size="sm" c="dimmed" visibleFrom="xl">
+          · pixel art from any image, computed in your browser
+        </Text>
       </Group>
-      <Box hiddenFrom="lg" px="md" pb={8} data-testid="kici-row">
+      <Group gap="xs" wrap="nowrap">
         <KiciLink />
-      </Box>
-    </Stack>
+        <StarOnGitHub />
+        <ColorSchemeToggle />
+      </Group>
+    </Group>
   );
 }
