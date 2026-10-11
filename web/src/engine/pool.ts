@@ -1,5 +1,6 @@
 /** Runs jobs across a pool of engine workers and streams their results. */
 import type {
+  Downsampled,
   Job,
   PaletteColor,
   ResultImage,
@@ -44,7 +45,41 @@ function takeJob(queue: Job[], lastTargetSize: number | undefined): Job | undefi
   return job;
 }
 
+/**
+ * Runs `jobs` on `image`. The image is downsampled once per target size in a
+ * single task worker; the run workers only ever receive those small grids,
+ * so a large photo is held by one worker instead of every one of them.
+ */
 export function startRun(image: SourceImage, jobs: Job[], callbacks: RunCallbacks): Run {
+  const cancelled = new AbortController();
+  let run: Run | null = null;
+  const targetSizes = [...new Set(jobs.map((j) => j.targetSize))];
+  const done = (async () => {
+    let images: Downsampled[];
+    try {
+      images = targetSizes.length === 0 ? [] : await downsampleInWorker(image, targetSizes);
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      for (const job of cancelled.signal.aborted ? [] : jobs) {
+        callbacks.onJobError(job.id, reason);
+      }
+      return;
+    }
+    if (!cancelled.signal.aborted) {
+      run = runJobs(images, jobs, callbacks);
+      await run.done;
+    }
+  })();
+  return {
+    done,
+    cancel: () => {
+      cancelled.abort();
+      run?.cancel();
+    },
+  };
+}
+
+function runJobs(images: Downsampled[], jobs: Job[], callbacks: RunCallbacks): Run {
   const queue = [...jobs];
   let remaining = jobs.length;
   let finish = (): void => undefined;
@@ -80,7 +115,7 @@ export function startRun(image: SourceImage, jobs: Job[], callbacks: RunCallback
     const worker = createWorker();
     workers.push(worker);
     alive += 1;
-    send(worker, { type: 'image', image });
+    send(worker, { type: 'images', images });
     let current = feed(worker, undefined);
 
     worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
@@ -150,6 +185,13 @@ function runTask<T>(
   }).finally(() => {
     worker.terminate();
   });
+}
+
+/** `image` downsampled for each target size, computed off the UI thread. */
+function downsampleInWorker(image: SourceImage, targetSizes: number[]): Promise<Downsampled[]> {
+  return runTask({ type: 'downsample', image, targetSizes }, [], (m) =>
+    m.type === 'downsampled' ? m.images : undefined,
+  );
 }
 
 /** Every distinct color of a palette image, computed off the UI thread. */

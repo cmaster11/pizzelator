@@ -4,6 +4,7 @@ use wasm_bindgen::prelude::*;
 
 use crate::color::Rgb;
 use crate::error::EngineError;
+use crate::image::Pixels;
 use crate::optimizer::SearchParams;
 use crate::palette::{PaletteColor, PaletteMethod};
 use crate::redraw::RedrawMethod;
@@ -77,6 +78,55 @@ impl RedrawResult {
     }
 }
 
+/// One image downsampled for one target size.
+#[wasm_bindgen]
+pub struct Downsampled {
+    step: usize,
+    pixels: Pixels,
+}
+
+#[wasm_bindgen]
+impl Downsampled {
+    #[wasm_bindgen(getter)]
+    pub fn step(&self) -> u32 {
+        to_u32(self.step)
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn width(&self) -> u32 {
+        to_u32(self.pixels.width)
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn height(&self) -> u32 {
+        to_u32(self.pixels.height)
+    }
+
+    /// `[r, g, b, …]` column-major, for `Engine.fromDownsampled`.
+    #[wasm_bindgen(getter)]
+    pub fn rgb(&self) -> Vec<f64> {
+        self.pixels.to_rgb()
+    }
+}
+
+/// Downsamples row-major straight-alpha 16-bit samples for one target size.
+#[wasm_bindgen]
+pub fn downsample(
+    rgba: &[u16],
+    width: u32,
+    height: u32,
+    target_size: u32,
+) -> Result<Downsampled, JsError> {
+    let (step, pixels) = crate::downsample(
+        rgba,
+        to_usize(width),
+        to_usize(height),
+        to_usize(target_size),
+    )
+    .map_err(js_err)?;
+    Ok(Downsampled { step, pixels })
+}
+
 #[wasm_bindgen]
 pub struct Engine {
     session: Session,
@@ -86,18 +136,18 @@ pub struct Engine {
 
 #[wasm_bindgen]
 impl Engine {
-    #[wasm_bindgen(constructor)]
-    /// `rgba` holds row-major straight-alpha 16-bit samples.
-    pub fn new(rgba: &[u16], width: u32, height: u32, target_size: u32) -> Result<Engine, JsError> {
-        let session = Session::new(
-            rgba,
-            to_usize(width),
-            to_usize(height),
-            to_usize(target_size),
-        )
-        .map_err(js_err)?;
+    /// A session on an image `downsample` produced; `rgb` is its
+    /// `Downsampled.rgb`.
+    #[wasm_bindgen(js_name = fromDownsampled)]
+    pub fn from_downsampled(
+        step: u32,
+        width: u32,
+        height: u32,
+        rgb: &[f64],
+    ) -> Result<Engine, JsError> {
+        let pixels = Pixels::from_rgb(to_usize(width), to_usize(height), rgb).map_err(js_err)?;
         Ok(Engine {
-            session,
+            session: Session::from_downsampled(to_usize(step), pixels),
             palettes: Vec::new(),
             redraw: None,
         })

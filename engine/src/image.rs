@@ -87,6 +87,38 @@ impl Pixels {
         self.data[x * self.height + y]
     }
 
+    /// The colors as `[r, g, b, …]` in storage (column-major) order, for
+    /// handing a downsampled image to another worker bit for bit.
+    pub fn to_rgb(&self) -> Vec<f64> {
+        self.data.iter().flat_map(|c| [c.r, c.g, c.b]).collect()
+    }
+
+    /// The inverse of `to_rgb`.
+    pub fn from_rgb(width: usize, height: usize, rgb: &[f64]) -> Result<Self, EngineError> {
+        if width == 0 || height == 0 || rgb.len() != width * height * 3 {
+            return Err(EngineError::InvalidDownsampled {
+                width,
+                height,
+                values: rgb.len(),
+            });
+        }
+        let data = rgb
+            .as_chunks::<3>()
+            .0
+            .iter()
+            .map(|c| Rgb {
+                r: c[0],
+                g: c[1],
+                b: c[2],
+            })
+            .collect();
+        Ok(Self {
+            width,
+            height,
+            data,
+        })
+    }
+
     /// Row-major opaque RGBA bytes.
     pub fn to_rgba8(&self) -> Vec<u8> {
         let mut out = Vec::with_capacity(self.width * self.height * 4);
@@ -224,6 +256,18 @@ mod tests {
                 assert_eq!(bits(&a), bits(&b), "{width}x{height} step {step}");
             }
         }
+    }
+
+    #[test]
+    fn rgb_round_trip_is_bit_exact_and_checks_its_length() {
+        let rgba = samples(9, 7);
+        let px = Pixels::from_rgba16(&rgba, 9, 7).unwrap();
+        let back = Pixels::from_rgb(9, 7, &px.to_rgb()).unwrap();
+        // fails-when: the flattening reorders pixels or channels.
+        assert_eq!(back.to_rgb(), px.to_rgb());
+        assert_eq!((back.width, back.height), (9, 7));
+        assert!(Pixels::from_rgb(9, 7, &px.to_rgb()[3..]).is_err());
+        assert!(Pixels::from_rgb(0, 7, &[]).is_err());
     }
 
     #[test]

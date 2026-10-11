@@ -37,6 +37,18 @@ pub struct Session {
     analysis: Option<Analysis>,
 }
 
+/// The block size for `target_size` and the image downsampled with it.
+pub fn downsample(
+    rgba: &[u16],
+    width: usize,
+    height: usize,
+    target_size: usize,
+) -> Result<(usize, Pixels), EngineError> {
+    let src = image::Rgba16::new(rgba, width, height)?;
+    let step = image::step_for_target(width, height, target_size)?;
+    Ok((step, image::quantize(&src, step)))
+}
+
 impl Session {
     pub fn new(
         rgba: &[u16],
@@ -44,13 +56,18 @@ impl Session {
         height: usize,
         target_size: usize,
     ) -> Result<Self, EngineError> {
-        let src = image::Rgba16::new(rgba, width, height)?;
-        let step = image::step_for_target(width, height, target_size)?;
-        Ok(Self {
+        let (step, pixels) = downsample(rgba, width, height, target_size)?;
+        Ok(Self::from_downsampled(step, pixels))
+    }
+
+    /// A session on an image `downsample` already produced, possibly in
+    /// another worker: the full-size image is not needed again.
+    pub fn from_downsampled(step: usize, pixels: Pixels) -> Self {
+        Self {
             step,
-            pixels: image::quantize(&src, step),
+            pixels,
             analysis: None,
-        })
+        }
     }
 
     pub fn step(&self) -> usize {

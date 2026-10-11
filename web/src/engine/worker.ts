@@ -1,6 +1,7 @@
 /// Engine worker: owns one WASM instance and runs jobs for the pool.
-import init, { Engine, decodePng, extractImagePalette } from './wasm/engine.js';
+import init, { Engine, decodePng, downsample, extractImagePalette } from './wasm/engine.js';
 import type {
+  Downsampled,
   Job,
   PaletteColor,
   ResultImage,
@@ -10,7 +11,8 @@ import type {
 } from './types';
 
 const ready = init();
-let source: SourceImage | null = null;
+/** This run's input, downsampled for each target size. */
+let images = new Map<number, Downsampled>();
 /** Downsampled sessions by target size; their palette groupings are reused across jobs. */
 const engines = new Map<number, Engine>();
 
@@ -37,15 +39,34 @@ function unflatten(flat: Float64Array): PaletteColor[] {
 }
 
 function engineFor(targetSize: number): Engine {
-  if (source === null) {
-    throw new Error('no image loaded');
-  }
   let engine = engines.get(targetSize);
   if (engine === undefined) {
-    engine = new Engine(source.rgba16, source.width, source.height, targetSize);
+    const image = images.get(targetSize);
+    if (image === undefined) {
+      throw new Error(`no downsampled image for target size ${String(targetSize)}`);
+    }
+    engine = Engine.fromDownsampled(image.step, image.width, image.height, image.rgb);
     engines.set(targetSize, engine);
   }
   return engine;
+}
+
+/** Downsamples `image` for every target size, keeping no copy of it. */
+function downsampleAll(image: SourceImage, targetSizes: number[]): Downsampled[] {
+  return targetSizes.map((targetSize) => {
+    const d = downsample(image.rgba16, image.width, image.height, targetSize);
+    try {
+      return {
+        targetSize,
+        step: d.step,
+        width: d.width,
+        height: d.height,
+        rgb: new Float64Array(d.rgb),
+      };
+    } finally {
+      d.free();
+    }
+  });
 }
 
 function postResult(result: ResultImage): void {
@@ -121,12 +142,12 @@ function task(run: () => [WorkerResponse, Transferable[]]): void {
 
 function handle(message: WorkerRequest): void {
   switch (message.type) {
-    case 'image':
+    case 'images':
       for (const engine of engines.values()) {
         engine.free();
       }
       engines.clear();
-      source = message.image;
+      images = new Map(message.images.map((d) => [d.targetSize, d]));
       return;
     case 'job':
       try {
@@ -134,6 +155,12 @@ function handle(message: WorkerRequest): void {
       } catch (err) {
         post({ type: 'job-error', jobId: message.job.id, message: errorMessage(err) });
       }
+      return;
+    case 'downsample':
+      task(() => {
+        const downsampled = downsampleAll(message.image, message.targetSizes);
+        return [{ type: 'downsampled', images: downsampled }, downsampled.map((d) => d.rgb.buffer)];
+      });
       return;
     case 'extract-palette':
       task(() => {

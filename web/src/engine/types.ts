@@ -80,6 +80,19 @@ export interface SourceImage {
   rgba16: Uint16Array<ArrayBuffer>;
 }
 
+/**
+ * The input downsampled for one target size, made once per run and shared
+ * with every run worker, which never needs the full-size image.
+ */
+export interface Downsampled {
+  targetSize: number;
+  step: number;
+  width: number;
+  height: number;
+  /** `[r, g, b, …]` column-major, exactly as the engine computed them. */
+  rgb: Float64Array<ArrayBuffer>;
+}
+
 export interface RgbaImage {
   width: number;
   height: number;
@@ -123,8 +136,9 @@ export interface ResultImage {
 }
 
 export type WorkerRequest =
-  | { type: 'image'; image: SourceImage }
+  | { type: 'images'; images: Downsampled[] }
   | { type: 'job'; job: Job }
+  | { type: 'downsample'; image: SourceImage; targetSizes: number[] }
   | { type: 'extract-palette'; image: SourceImage }
   | { type: 'decode-png'; bytes: ArrayBuffer };
 
@@ -133,5 +147,6 @@ export type WorkerResponse =
   | { type: 'job-done'; jobId: number; palettesFound: number }
   | { type: 'job-error'; jobId: number; message: string }
   | { type: 'palette'; colors: PaletteColor[] }
+  | { type: 'downsampled'; images: Downsampled[] }
   | { type: 'decoded'; image: SourceImage }
   | { type: 'task-error'; message: string };

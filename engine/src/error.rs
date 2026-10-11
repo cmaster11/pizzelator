@@ -7,6 +7,11 @@ pub enum EngineError {
         height: usize,
         samples: usize,
     },
+    InvalidDownsampled {
+        width: usize,
+        height: usize,
+        values: usize,
+    },
     InvalidPng(String),
     InvalidTargetSize {
         target: usize,
@@ -37,6 +42,15 @@ impl fmt::Display for EngineError {
                 f,
                 "invalid image: {width}x{height} needs {} RGBA samples, got {samples}",
                 width * height * 4
+            ),
+            Self::InvalidDownsampled {
+                width,
+                height,
+                values,
+            } => write!(
+                f,
+                "invalid downsampled image: {width}x{height} needs {} RGB values, got {values}",
+                width * height * 3
             ),
             Self::InvalidPng(reason) => write!(f, "could not decode PNG: {reason}"),
             Self::InvalidTargetSize { target, min_side } => write!(
