@@ -144,7 +144,7 @@ fn check(golden: &Golden) {
 }
 
 #[test]
-fn matches_go_reference() {
+fn matches_the_golden_fixtures() {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/golden");
     let mut paths: Vec<PathBuf> = fs::read_dir(&dir)
         .unwrap()

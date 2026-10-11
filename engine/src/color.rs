@@ -460,7 +460,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn go_pow_matches_exact_integer_powers() {
+    fn split_pow_matches_exact_integer_powers() {
         assert_eq!(split_pow(25.0, 7.0), 6103515625.0);
         assert_eq!(split_pow(3.0, 3.0), 27.0);
         assert_eq!(split_pow(0.0, 7.0), 0.0);
@@ -489,7 +489,7 @@ mod tests {
     }
 
     #[test]
-    fn widened_8bit_matches_go_8bit_path_for_every_alpha() {
+    fn widened_8bit_matches_the_8bit_path_for_every_alpha() {
         for a in 1..=255_u8 {
             for c in 0..=255_u8 {
                 assert_eq!(from8(c, c, c, a).r, from_nrgba8(c, a), "c={c} a={a}");
