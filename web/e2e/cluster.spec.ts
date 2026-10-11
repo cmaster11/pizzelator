@@ -29,9 +29,7 @@ test('the cluster search paints the same pixels as the native engine', async ({ 
 
   const section = page.getByTestId('result-section');
   await expect(section).toHaveCount(1);
-  await expect(section.getByRole('heading')).toHaveText(
-    '64px · HSLuv sat + lum @ 0.8 · clusters · CIE94',
-  );
+  await expect(section.getByRole('heading')).toHaveText('64px · HSLuv sat + lum @ 0.8 · CIE94');
   const card = section.getByTestId('result-card');
   await expect(card).toHaveCount(1);
   await expect(card).toContainText('clusters');

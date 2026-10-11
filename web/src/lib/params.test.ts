@@ -5,7 +5,8 @@ import {
   maxResults,
   resultCaption,
   resultFileName,
-  sourceLabel,
+  settingsKey,
+  settingsLabel,
   validateParams,
   type Params,
 } from './params';
@@ -152,15 +153,38 @@ describe('resultFileName', () => {
 });
 
 describe('labels', () => {
-  it('names the search in section headings and captions', () => {
+  it('heads a section with its settings and names the search in each caption', () => {
     const [cluster, tolerance] = buildJobs(params({ thresholds: [0.6] }));
     if (cluster === undefined || tolerance === undefined) {
       throw new Error('expected two jobs');
     }
-    expect(sourceLabel(cluster.source)).toBe('HSLuv sat + lum @ 0.6 · clusters');
-    expect(sourceLabel(tolerance.source)).toBe('HSLuv sat + lum @ 0.6 · tolerance search');
+    expect(settingsLabel(cluster.source)).toBe('HSLuv sat + lum @ 0.6');
+    expect(settingsLabel(tolerance.source)).toBe('HSLuv sat + lum @ 0.6');
+    expect(
+      settingsLabel(buildJobs(params({ paletteMethods: ['w'] }))[0]?.source ?? cluster.source),
+    ).toBe('Weighted average');
     expect(resultCaption(cluster.source, null)).toBe('clusters');
     expect(resultCaption(tolerance.source, 0.04352)).toBe('tolerance 0.0435');
+  });
+});
+
+describe('settingsKey', () => {
+  it('puts the searches of one size, method and threshold together, and nothing else', () => {
+    const jobs = buildJobs(
+      params({ targetSizes: [32, 64], paletteMethods: ['lsd', 'w'], thresholds: [0.2, 0.8] }),
+    );
+    const groups = new Map<string, string[]>();
+    for (const job of jobs) {
+      const key = settingsKey(job);
+      groups.set(key, [
+        ...(groups.get(key) ?? []),
+        job.source.kind === 'search' ? job.source.search : 'forced',
+      ]);
+    }
+    // 2 sizes × (lsd at 2 thresholds + w once): 6 sections, each with both searches.
+    // fails-when: the key splits the searches of one setting or merges two settings.
+    expect(groups.size).toBe(6);
+    expect([...groups.values()].every((s) => s.join() === 'cluster,tolerance')).toBe(true);
   });
 });
 

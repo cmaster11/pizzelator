@@ -48,14 +48,12 @@ export const PALETTE_SEARCHES = [
   {
     id: 'cluster',
     label: 'Clusters (v2)',
-    heading: 'clusters',
     description:
       'Clusters the colors by pixel count into exactly the palette size: one palette per method and threshold.',
   },
   {
     id: 'tolerance',
     label: 'Tolerance (classic)',
-    heading: 'tolerance search',
     description:
       'The classic search: raises a grouping tolerance until the colors fall into exactly the palette size.',
   },

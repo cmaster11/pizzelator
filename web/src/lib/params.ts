@@ -161,14 +161,26 @@ export function maxResults(p: Params): number {
   return buildJobs(p).reduce((n, job) => n + palettesPerJob(job), 0) * p.redrawMethods.length;
 }
 
-export function sourceLabel(source: Job['source']): string {
+/**
+ * The settings a job paints with, apart from its palette search: the palette
+ * searches of one target size, method and threshold share a results section,
+ * so their images sit side by side.
+ */
+export function settingsKey(job: Job): string {
+  const { source } = job;
+  return source.kind === 'forced'
+    ? `${String(job.targetSize)}/forced`
+    : `${String(job.targetSize)}/${source.method}/${String(source.threshold)}`;
+}
+
+/** A section heading's palette part: the method, and its threshold when it uses one. */
+export function settingsLabel(source: Job['source']): string {
   if (source.kind === 'forced') {
     return 'forced palette';
   }
   const method = PALETTE_METHODS.find((m) => m.id === source.method);
   const label = method?.label ?? source.method;
-  const search = PALETTE_SEARCHES.find((s) => s.id === source.search)?.heading ?? source.search;
-  return `${method?.usesThreshold === true ? `${label} @ ${source.threshold}` : label} · ${search}`;
+  return method?.usesThreshold === true ? `${label} @ ${String(source.threshold)}` : label;
 }
 
 /** The caption under one result image. */

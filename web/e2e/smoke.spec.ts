@@ -33,15 +33,17 @@ test('paints an image and downloads a result at 4× and at original size', async
   // pizza.png at 64px with 8 colors, threshold 0.6, initial tolerance 0.02, CIE94
   // yields 4 distinct images from the tolerance search; the engine's golden
   // fixture pizza_lsd_cie94 pins the same case. The cluster search adds its
-  // one palette.
-  const sections = page.getByTestId('result-section');
-  await expect(sections).toHaveCount(2);
-  const clusters = sections.nth(0);
-  const tolerance = sections.nth(1);
-  await expect(clusters.getByRole('heading')).toContainText('· clusters ·');
-  await expect(tolerance.getByRole('heading')).toContainText('· tolerance search ·');
-  await expect(clusters.getByTestId('result-card')).toHaveCount(1);
-  const cards = tolerance.getByTestId('result-card');
+  // one palette. Both searches share one section, the cluster image first.
+  const section = page.getByTestId('result-section');
+  await expect(section).toHaveCount(1);
+  await expect(section.getByRole('heading')).toHaveText('64px · HSLuv sat + lum @ 0.6 · CIE94');
+  const all = section.getByTestId('result-card');
+  // fails-when: the searches of one setting are split, or the cluster image is not first.
+  await expect(all).toHaveCount(5);
+  await expect(all.first().getByTestId('result-caption')).toHaveText('clusters');
+  const clusters = all.filter({ has: page.getByTestId('result-caption').getByText('clusters') });
+  const cards = all.filter({ has: page.getByTestId('result-caption').getByText(/^tolerance /) });
+  await expect(clusters).toHaveCount(1);
   await expect(cards).toHaveCount(4);
   await expect(page.getByTestId('run-summary')).toContainText('5 images · 2/2 runs');
 

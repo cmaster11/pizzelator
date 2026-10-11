@@ -20,8 +20,8 @@ test('"Try the example" loads the city photo and paints it with the current sett
     timeout: 60_000,
   });
   await expect(page.getByTestId('run-summary')).toContainText('done in');
-  await expect(page.getByTestId('result-section').getByRole('heading')).toContainText(
-    '16px · HSLuv sat + lum @ 0.6 · clusters',
+  await expect(page.getByTestId('result-section').getByRole('heading')).toHaveText(
+    '16px · HSLuv sat + lum @ 0.6 · CIE94',
   );
   expect(errors).toEqual([]);
 });
