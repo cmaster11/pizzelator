@@ -55,6 +55,9 @@ The settings and output options are saved in the browser's `localStorage`, so
 a reload keeps them; the image and a forced palette are picked again. "Reset
 all settings" puts every one back to its default (`web/src/lib/settings.ts`).
 
+"Try the example" loads `assets/city.jpg`, a 3000 × 4000 photo of a city
+street, and paints it with the current settings.
+
 "Select area" paints only part of the image: drag a rectangle on it with a
 mouse or a finger. The area snaps to whole source pixels, and the result file
 names carry it (`_crop<x>-<y>-<width>x<height>`).
@@ -67,7 +70,7 @@ names carry it (`_crop<x>-<y>-<width>x<height>`).
 | `engine/tests/golden/` | Golden fixtures the engine must reproduce exactly                  |
 | `web/`                 | Vite + React + Mantine app; `web/src/engine/` runs the WASM engine |
 | `scripts/`             | Engine build, dev server and its systemd unit                      |
-| `assets/`              | The sample image (a pizza), also used by the tests                 |
+| `assets/`              | The test image (a pizza) and the example photo (a city street)     |
 
 ## Development
 

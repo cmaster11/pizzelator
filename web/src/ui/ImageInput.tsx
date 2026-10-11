@@ -1,6 +1,12 @@
 import { Button, Group, Image, Stack, Text } from '@mantine/core';
 import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { IconCrop, IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
+import {
+  IconBuildingSkyscraper,
+  IconCrop,
+  IconPhoto,
+  IconUpload,
+  IconX,
+} from '@tabler/icons-react';
 
 import type { CropRect } from '../lib/crop';
 
@@ -18,6 +24,7 @@ export function ImageInput({
   error,
   disabled,
   onFile,
+  onExample,
   onSelectArea,
   onClearArea,
 }: {
@@ -27,6 +34,8 @@ export function ImageInput({
   error: string | null;
   disabled: boolean;
   onFile: (file: File) => void;
+  /** Loads the example image and paints it. */
+  onExample: () => void;
   onSelectArea: () => void;
   onClearArea: () => void;
 }) {
@@ -72,6 +81,17 @@ export function ImageInput({
           </div>
         </Group>
       </Dropzone>
+      <Group justify="center">
+        <Button
+          size="xs"
+          variant="subtle"
+          leftSection={<IconBuildingSkyscraper size={16} />}
+          onClick={onExample}
+          disabled={disabled || loading}
+        >
+          Try the example: a city street
+        </Button>
+      </Group>
       {error !== null && (
         <Text c="red" size="sm">
           {error}

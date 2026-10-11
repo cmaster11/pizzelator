@@ -2,19 +2,19 @@ import { AppShell, Button, Grid, Group, List, Paper, Stack, Text } from '@mantin
 import { IconPlayerPlay, IconPlayerStop, IconRestore } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { SourceImage } from '../engine/types';
-import { cropImage, cropLabel, type CropRect } from '../lib/crop';
-import { decodeImage } from '../lib/image';
+import { cropImage, cropLabel } from '../lib/crop';
 import type { OutputOptions } from '../lib/output';
 import { maxResults, validateParams, type Params } from '../lib/params';
 import { DEFAULT_SETTINGS, isDefaultSettings, loadSettings, saveSettings } from '../lib/settings';
 import { AppHeader } from './AppHeader';
 import { CropDialog } from './CropDialog';
-import { ImageInput, type LoadedImage } from './ImageInput';
+import { EXAMPLE_NAME, fetchExample } from './example';
+import { ImageInput } from './ImageInput';
 import { OutputBar } from './OutputBar';
 import { ParamsForm } from './ParamsForm';
 import { Results } from './Results';
 import { useRun } from './useRun';
+import { useSourceImage } from './useSourceImage';
 
 function baseNameOf(fileName: string): string {
   return fileName.replace(/\.[^.]+$/, '').replace(/[^\w-]+/g, '_') || 'image';
@@ -46,14 +46,8 @@ function ResetSettings({ disabled, onReset }: { disabled: boolean; onReset: () =
 
 export function App() {
   const [params, setParams] = useState<Params>(SAVED.params);
-  const [source, setSource] = useState<{
-    info: LoadedImage;
-    pixels: SourceImage;
-  } | null>(null);
-  const [crop, setCrop] = useState<CropRect | null>(null);
+  const { source, crop, setCrop, loading, error: loadError, load } = useSourceImage();
   const [cropOpen, setCropOpen] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState<OutputOptions>(SAVED.output);
   /** Bumped by "Reset all settings" so the form drops its own state too. */
   const [formKey, setFormKey] = useState(0);
@@ -63,37 +57,13 @@ export function App() {
     saveSettings(storage, { params, output });
   }, [params, output]);
 
-  useEffect(
-    () => () => {
-      if (source !== null) {
-        URL.revokeObjectURL(source.info.url);
+  /** Loads the example and paints it with the current settings, when they are valid. */
+  const onExample = (): void => {
+    void load(fetchExample).then((pixels) => {
+      if (pixels !== null && validateParams(params, pixels).length === 0) {
+        start(pixels, baseNameOf(EXAMPLE_NAME), params);
       }
-    },
-    [source],
-  );
-
-  const onFile = (file: File): void => {
-    setLoading(true);
-    setLoadError(null);
-    decodeImage(file)
-      .then((pixels) => {
-        const info = {
-          name: file.name,
-          url: URL.createObjectURL(file),
-          width: pixels.width,
-          height: pixels.height,
-        };
-        setSource({ info, pixels });
-        setCrop(null);
-      })
-      .catch((err: unknown) => {
-        setLoadError(
-          `Could not read this image: ${err instanceof Error ? err.message : String(err)}`,
-        );
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    });
   };
 
   /** The pixels a run paints: the selected area, or the whole image. */
@@ -129,7 +99,10 @@ export function App() {
                   loading={loading}
                   error={loadError}
                   disabled={running}
-                  onFile={onFile}
+                  onFile={(file) => {
+                    void load(file);
+                  }}
+                  onExample={onExample}
                   onSelectArea={() => {
                     setCropOpen(true);
                   }}
