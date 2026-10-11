@@ -62,6 +62,9 @@ function useStatus(): { text: string | null; show: (text: string) => void } {
   return { text, show: setText };
 }
 
+/** The narrowest fixed-size card, in CSS pixels: room for a caption and three buttons. */
+const MIN_FIXED_WIDTH = 160;
+
 export function ResultCard({
   result,
   caption,
@@ -79,18 +82,31 @@ export function ResultCard({
   );
   const name = exportName(result, output);
   const status = useStatus();
+  const fit = output.display === 'fit';
+  const factor = fit ? 1 : Number(output.display);
   return (
-    <Card withBorder padding="xs" data-testid="result-card">
-      <Card.Section>
+    // A fixed-size card is as wide as its image, but at least wide enough for
+    // the caption and its buttons, so small results line up in even cards. It
+    // is never wider than the gallery: a wider image scrolls inside the card.
+    <Card
+      withBorder
+      padding="xs"
+      w={fit ? undefined : 'min-content'}
+      maw="100%"
+      data-testid="result-card"
+    >
+      <Card.Section style={{ overflowX: 'auto', minWidth: fit ? undefined : MIN_FIXED_WIDTH }}>
         <img
           src={url ?? undefined}
           alt={`Result ${name}`}
           width={width}
           height={height}
           style={{
-            width: '100%',
-            height: 'auto',
+            width: fit ? '100%' : width * factor,
+            height: fit ? 'auto' : height * factor,
+            maxWidth: 'none',
             display: 'block',
+            margin: '0 auto',
             imageRendering: 'pixelated',
           }}
         />

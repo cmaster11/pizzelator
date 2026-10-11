@@ -39,6 +39,11 @@ pool of Web Workers.
    alike, switch without re-running, and name the files
    (`_bright20_sat10`).
 
+Results show at 4× on the page by default (Fit on touch screens). The
+display size (Fit, 2×, 4×, 8×) only changes the page, not the files: Fit
+fills the gallery columns and follows the window, and the fixed sizes keep
+each result the same size however the window changes.
+
 Downloads default to 4× (each result pixel becomes a 4 × 4 square); the
 download size applies to every result and to "Download all". Each result's
 ⋯ menu copies it to the clipboard or downloads it at any scale on its own.

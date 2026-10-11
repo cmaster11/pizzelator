@@ -13,7 +13,7 @@ import { useState } from 'react';
 
 import { ADJUST_RANGE, formatPercent } from '../lib/adjust';
 import { downloadBlob, zipFiles } from '../lib/download';
-import { EXPORT_SCALES, type OutputOptions } from '../lib/output';
+import { DISPLAY_SCALES, EXPORT_SCALES, type OutputOptions } from '../lib/output';
 import { exportName, exportPalette, exportPng, pngName } from './export';
 import { HELP } from './help';
 import type { RunState } from './useRun';
@@ -135,6 +135,20 @@ export function OutputBar({
               onOutputChange({ ...output, adjust: { ...output.adjust, saturation } });
             }}
           />
+          <Stack gap={2}>
+            <Text size="xs" c="dimmed">
+              Display size
+            </Text>
+            <SegmentedControl
+              size="xs"
+              value={output.display}
+              onChange={(v) => {
+                onOutputChange({ ...output, display: v });
+              }}
+              data={DISPLAY_SCALES}
+              aria-label="Display scale"
+            />
+          </Stack>
           <Stack gap={2}>
             <Text size="xs" c="dimmed">
               Download size

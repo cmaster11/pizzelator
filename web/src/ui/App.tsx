@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { cropImage, cropLabel } from '../lib/crop';
 import type { OutputOptions } from '../lib/output';
 import { maxResults, validateParams, type Params } from '../lib/params';
-import { DEFAULT_SETTINGS, isDefaultSettings, loadSettings, saveSettings } from '../lib/settings';
+import { defaultSettings, isDefaultSettings, loadSettings, saveSettings } from '../lib/settings';
 import { AppHeader } from './AppHeader';
 import { CropDialog } from './CropDialog';
 import { EXAMPLE_NAME, fetchExample } from './example';
@@ -22,8 +22,14 @@ function baseNameOf(fileName: string): string {
 
 const storage = (): Storage => window.localStorage;
 
+/**
+ * The defaults for this device, decided once per page load: a coarse primary
+ * pointer means a touch screen. Resizing the window never changes them.
+ */
+const DEFAULTS = defaultSettings(window.matchMedia('(pointer: coarse)').matches);
+
 /** The settings saved by the previous visit, read once per page load. */
-const SAVED = loadSettings(storage);
+const SAVED = loadSettings(storage, DEFAULTS);
 
 function ResetSettings({ disabled, onReset }: { disabled: boolean; onReset: () => void }) {
   return (
@@ -124,10 +130,10 @@ export function App() {
                   />
                 )}
                 <ResetSettings
-                  disabled={running || isDefaultSettings({ params, output })}
+                  disabled={running || isDefaultSettings({ params, output }, DEFAULTS)}
                   onReset={() => {
-                    setParams(DEFAULT_SETTINGS.params);
-                    setOutput(DEFAULT_SETTINGS.output);
+                    setParams(DEFAULTS.params);
+                    setOutput(DEFAULTS.output);
                     setFormKey((k) => k + 1);
                   }}
                 />

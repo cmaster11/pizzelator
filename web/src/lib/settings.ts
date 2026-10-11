@@ -5,7 +5,7 @@
  */
 import { PALETTE_METHODS, PALETTE_SEARCHES, REDRAW_METHODS } from '../engine/types';
 import { ADJUST_RANGE } from './adjust';
-import { DEFAULT_OUTPUT, EXPORT_SCALES, type OutputOptions } from './output';
+import { defaultOutput, DISPLAY_SCALES, EXPORT_SCALES, type OutputOptions } from './output';
 import { DEFAULT_PARAMS, type Params } from './params';
 
 export const SETTINGS_KEY = 'pizzelator.settings.v1';
@@ -15,17 +15,20 @@ export interface Settings {
   output: OutputOptions;
 }
 
-export const DEFAULT_SETTINGS: Settings = { params: DEFAULT_PARAMS, output: DEFAULT_OUTPUT };
+/** The settings before any change; see `defaultOutput` for `touch`. */
+export function defaultSettings(touch: boolean): Settings {
+  return { params: DEFAULT_PARAMS, output: defaultOutput(touch) };
+}
 
 /** The JSON stored under `SETTINGS_KEY`. */
 export function serializeSettings({ params, output }: Settings): string {
   return JSON.stringify({ params: { ...params, forcedPalette: null }, output });
 }
 
-export function isDefaultSettings(settings: Settings): boolean {
+export function isDefaultSettings(settings: Settings, defaults: Settings): boolean {
   return (
     settings.params.forcedPalette === null &&
-    serializeSettings(settings) === serializeSettings(DEFAULT_SETTINGS)
+    serializeSettings(settings) === serializeSettings(defaults)
   );
 }
 
@@ -63,9 +66,8 @@ function adjustment(v: unknown, fallback: number): number {
     : fallback;
 }
 
-function parseParams(v: unknown): Params {
+function parseParams(v: unknown, d: Params): Params {
   const p = fieldsOf(v);
-  const d = DEFAULT_PARAMS;
   return {
     targetSizes: numbers(p.targetSizes, d.targetSizes),
     paletteCount: number(p.paletteCount, d.paletteCount),
@@ -80,12 +82,12 @@ function parseParams(v: unknown): Params {
   };
 }
 
-function parseOutput(v: unknown): OutputOptions {
+function parseOutput(v: unknown, d: OutputOptions): OutputOptions {
   const o = fieldsOf(v);
   const adjust = fieldsOf(o.adjust);
-  const d = DEFAULT_OUTPUT;
   return {
     scale: EXPORT_SCALES.find((s) => s.value === o.scale)?.value ?? d.scale,
+    display: DISPLAY_SCALES.find((s) => s.value === o.display)?.value ?? d.display,
     adjust: {
       brightness: adjustment(adjust.brightness, d.adjust.brightness),
       saturation: adjustment(adjust.saturation, d.adjust.saturation),
@@ -98,7 +100,7 @@ function parseOutput(v: unknown): OutputOptions {
  * the app, or edited by hand): each field that is missing or malformed takes
  * its default, and the rest are kept.
  */
-export function parseSettings(text: string | null): Settings {
+export function parseSettings(text: string | null, defaults: Settings): Settings {
   let data: unknown = null;
   if (text !== null) {
     try {
@@ -108,7 +110,10 @@ export function parseSettings(text: string | null): Settings {
     }
   }
   const s = fieldsOf(data);
-  return { params: parseParams(s.params), output: parseOutput(s.output) };
+  return {
+    params: parseParams(s.params, defaults.params),
+    output: parseOutput(s.output, defaults.output),
+  };
 }
 
 /**
@@ -116,12 +121,15 @@ export function parseSettings(text: string | null): Settings {
  * when the browser blocks storage for the site. The app then works as
  * before, starting from the defaults on every load.
  */
-export function loadSettings(storage: () => Pick<Storage, 'getItem'>): Settings {
+export function loadSettings(
+  storage: () => Pick<Storage, 'getItem'>,
+  defaults: Settings,
+): Settings {
   try {
-    return parseSettings(storage().getItem(SETTINGS_KEY));
+    return parseSettings(storage().getItem(SETTINGS_KEY), defaults);
   } catch (err) {
     console.warn('Settings could not be read; using the defaults.', err);
-    return DEFAULT_SETTINGS;
+    return defaults;
   }
 }
 

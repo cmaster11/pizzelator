@@ -91,6 +91,7 @@ export const HELP = {
     about: 'output options',
     paragraphs: [
       `Brightness and saturation change the finished images and their palettes without painting again. Averaged colors come out dull, so they start at +${String(DEFAULT_ADJUSTMENTS.brightness)}% and +${String(DEFAULT_ADJUSTMENTS.saturation)}%. High brightness turns light colors white; set both to 0% to keep the colors the search found.`,
+      'Display size sets how big results show on this page. Fit fills the columns and follows the window; 2×, 4× and 8× draw each pixel as a 2, 4 or 8 pixel square that keeps its size when the window changes. It starts at 4× with a mouse and at Fit on touch screens.',
       'Download size scales each pixel up into a square, keeping edges sharp. 1× is the result at its own size; original size scales it back to about the input image’s size.',
     ],
   },

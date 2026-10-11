@@ -1,5 +1,7 @@
 import { Alert, Badge, Group, Loader, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 
+import type { ReactNode } from 'react';
+
 import { PALETTE_SEARCHES, REDRAW_METHODS, type RedrawMethodId } from '../engine/types';
 import { resultCaption, settingsKey, settingsLabel } from '../lib/params';
 import type { OutputOptions } from '../lib/output';
@@ -60,6 +62,22 @@ function StatusBadge({
   );
 }
 
+/**
+ * Fitted results share the width in columns; fixed-size ones keep their own
+ * width and wrap onto as many rows as the width needs.
+ */
+function Gallery({ fit, children }: { fit: boolean; children: ReactNode }) {
+  return fit ? (
+    <SimpleGrid cols={{ base: 2, sm: 3, lg: 4 }} spacing="sm">
+      {children}
+    </SimpleGrid>
+  ) : (
+    <Group gap="sm" align="flex-start">
+      {children}
+    </Group>
+  );
+}
+
 function SectionView({
   section,
   cancelled,
@@ -99,7 +117,7 @@ function SectionView({
         </Alert>
       ))}
       {section.results.length > 0 && (
-        <SimpleGrid cols={{ base: 2, sm: 3, lg: 4 }} spacing="sm">
+        <Gallery fit={output.display === 'fit'}>
           {section.results.map((r) => (
             <ResultCard
               key={r.key}
@@ -111,7 +129,7 @@ function SectionView({
               output={output}
             />
           ))}
-        </SimpleGrid>
+        </Gallery>
       )}
     </Stack>
   );
