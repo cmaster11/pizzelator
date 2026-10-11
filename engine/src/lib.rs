@@ -44,7 +44,7 @@ impl Session {
         height: usize,
         target_size: usize,
     ) -> Result<Self, EngineError> {
-        let src = Pixels::from_rgba16(rgba, width, height)?;
+        let src = image::Rgba16::new(rgba, width, height)?;
         let step = image::step_for_target(width, height, target_size)?;
         Ok(Self {
             step,
