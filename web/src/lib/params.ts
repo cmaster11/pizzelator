@@ -28,10 +28,10 @@ export interface Params {
 }
 
 /**
- * The classic run (tolerance 0.02 by 0.01 and this threshold sweep, HSLuv
- * saturation and lightness with CIE94, keeping 8 palettes per threshold) at
- * target size 64 with 24 colors, with the cluster search beside the
- * tolerance search.
+ * Target size 64 with 24 colors, both palette searches, HSLuv saturation and
+ * lightness with CIE94, and the classic tolerance 0.02 by 0.01 keeping 8
+ * palettes per threshold. Thresholds step by 0.1 up to 0.7 and by 0.05 above,
+ * where vivid, light palettes differ the most.
  */
 export const DEFAULT_PARAMS: Params = {
   targetSizes: [64],
@@ -39,11 +39,7 @@ export const DEFAULT_PARAMS: Params = {
   paletteSearches: ['cluster', 'tolerance'],
   maxImages: 8,
   paletteMethods: ['lsd'],
-  thresholds: [
-    0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.58, 0.6, 0.62, 0.65, 0.67, 0.7, 0.75,
-    0.77, 0.79, 0.8, 0.81, 0.82, 0.83, 0.84, 0.85, 0.86, 0.87, 0.88, 0.89, 0.9, 0.91, 0.92, 0.93,
-    0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1,
-  ],
+  thresholds: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1],
   redrawMethods: ['cie94'],
   tolerance: 0.02,
   increment: 0.01,

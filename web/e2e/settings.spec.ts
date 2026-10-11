@@ -2,8 +2,8 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { collectErrors, PIZZA, setPaletteColors, setTargetSize, setThreshold } from './helpers';
 
-/** The default run: 40 thresholds, each one cluster palette and up to 8 tolerance palettes. */
-const DEFAULT_PAINT = 'Paint · up to 360 images';
+/** The default run: 13 thresholds, each one cluster palette and up to 8 tolerance palettes. */
+const DEFAULT_PAINT = 'Paint · up to 117 images';
 /** Target 16, 8 colors, threshold 0.6, clusters only. */
 const CHANGED_PAINT = 'Paint · up to 1 images';
 

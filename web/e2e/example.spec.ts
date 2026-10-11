@@ -15,7 +15,7 @@ test('"Try the example" loads the city photo and paints it with the current sett
   await expect(page.getByText('city.jpg')).toBeVisible();
   await expect(page.getByText('3000 × 4000 px')).toBeVisible();
   // fails-when: the example does not start a run, or runs with other settings
-  // (the defaults paint up to 360 images).
+  // (the defaults paint up to 117 images).
   await expect(page.getByTestId('run-summary')).toContainText('1 images · 1/1 runs', {
     timeout: 60_000,
   });

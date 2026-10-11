@@ -165,18 +165,17 @@ describe('labels', () => {
 });
 
 describe('DEFAULT_PARAMS', () => {
-  it('is the classic run, with target 64 and 24 colors', () => {
-    // The classic threshold sweep, tolerance 0.02 by 0.01, lsd with CIE94 and
-    // 8 palettes; the cluster search runs beside the tolerance search.
-    const readme =
-      '.1,.15,.2,.25,.3,.35,.4,.45,.5,.55,.58,.6,.62,.65,.67,.7,.75,.77,.79,.8,.81,.82,.83,.84,.85,.86,.87,.88,.89,.9,.91,.92,.93,.94,.95,.96,.97,.98,0.99,1';
+  it('steps thresholds by 0.1 to 0.7 and by 0.05 above, at target 64 with 24 colors', () => {
+    // fails-when: a threshold is missing, doubled, or carries float noise
+    // (0.1 + 0.2 is not 0.3).
+    const thresholds = '.1,.2,.3,.4,.5,.6,.7,.75,.8,.85,.9,.95,1';
     expect(DEFAULT_PARAMS).toEqual({
       targetSizes: [64],
       paletteCount: 24,
       paletteSearches: ['cluster', 'tolerance'],
       maxImages: 8,
       paletteMethods: ['lsd'],
-      thresholds: readme.split(',').map(Number),
+      thresholds: thresholds.split(',').map(Number),
       redrawMethods: ['cie94'],
       tolerance: 0.02,
       increment: 0.01,
