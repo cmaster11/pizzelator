@@ -1,0 +1,36 @@
+# Lints, tests and builds every push to main, then publishes web/dist to the
+# gh-pages branch, which GitHub Pages serves.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # pushes the gh-pages branch
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # gitleaks scans the whole history
+          persist-credentials: false
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          version: 2026.5.1
+          cache: false # a publishing job never restores a cache another run wrote
+      - run: pnpm install --frozen-lockfile
+      - run: mise run lint
+      - run: mise run test
+      - run: mise run build
+      - run: scripts/publish-pages.sh
+        env:
+          GH_TOKEN: ${{ github.token }}

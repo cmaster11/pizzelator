@@ -1,0 +1,51 @@
+[tools]
+rust = { version = "1.99.0", targets = "wasm32-unknown-unknown", components = "rustfmt,clippy" }
+node = "24.21.0"
+pnpm = "12.11.2"
+"github:wasm-bindgen/wasm-bindgen" = "0.2.129"
+watchexec = "2.8.0"
+gitleaks = "8.30.1"
+shellcheck = "0.11.0"
+zig = "0.17.0"
+actionlint = "1.7.12"
+zizmor = "1.30.1"
+
+[tasks.build-engine]
+description = "Build the WASM engine into web/src/engine/wasm"
+run = "scripts/build-engine.sh"
+# Skipped while the bindings are newer than every source.
+sources = ["engine/src/**/*.rs", "engine/Cargo.toml", "engine/Cargo.lock", "scripts/build-engine.sh"]
+outputs = ["web/src/engine/wasm/engine.js", "web/src/engine/wasm/engine.d.ts", "web/src/engine/wasm/engine_bg.wasm"]
+
+[tasks.build]
+description = "Production build of the web app (static files in web/dist)"
+depends = ["build-engine"]
+run = "pnpm --dir web build"
+
+[tasks.lint]
+description = "Every linter and formatter check; must pass before each commit"
+# ESLint and tsc type-check against the generated engine bindings.
+depends = ["build-engine"]
+run = [
+  "cargo fmt --manifest-path engine/Cargo.toml --check",
+  "cargo clippy --manifest-path engine/Cargo.toml --all-targets",
+  "cargo clippy --manifest-path engine/Cargo.toml --target wasm32-unknown-unknown --lib",
+  "pnpm --dir web lint",
+  "pnpm --dir web typecheck",
+  "pnpm format:check",
+  "shellcheck -x scripts/*.sh scripts/zig-cc",
+  "actionlint",
+  "zizmor --offline .github/workflows",
+  "gitleaks git . --no-banner --redact",
+]
+
+[tasks.test]
+description = "Engine tests (including the golden fixtures) and web unit tests"
+run = [
+  "cargo test --manifest-path engine/Cargo.toml --release",
+  "pnpm --dir web test",
+]
+
+[tasks.e2e]
+description = "Browser smoke test against the dev server on :10099"
+run = "pnpm --dir web e2e"

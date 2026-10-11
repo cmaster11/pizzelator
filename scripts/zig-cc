@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# C compiler and linker for Rust host builds, so no system toolchain is needed.
+# Cargo runs it under `mise exec` (or a mise-activated shell), which puts the
+# pinned zig on PATH; mise itself need not be on PATH, as under systemd.
+set -euo pipefail
+exec zig cc -target x86_64-linux-gnu "$@"

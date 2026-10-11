@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+/engine/
+/web/src/engine/wasm/
+/web/dist/
+/web/playwright-report/
+/web/test-results/
+/tools/
