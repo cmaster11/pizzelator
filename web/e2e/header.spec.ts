@@ -24,3 +24,19 @@ test('the favicon is a 32 × 32 PNG served under the base path', async ({ page }
   expect(response.status()).toBe(200);
   expect(pngSize(await response.body())).toEqual([32, 32]);
 });
+
+test('the KiCI link shows its hook when wide and fits the header when narrow', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.goto('./');
+  const kici = page.getByRole('link', { name: /^KiCI/ });
+  await expect(kici).toHaveAttribute('href', 'https://kici.dev');
+  await expect(kici).toHaveAccessibleName('KiCI: CI your LLM can develop and test autonomously');
+  await expect(page.getByText('also by cmaster11 ·')).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 800 });
+  await expect(kici).toHaveAccessibleName('KiCI');
+  // fails-when: the header's contents overflow a phone-width screen.
+  const header = page.getByRole('banner');
+  const overflow = await header.evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(overflow).toBe(0);
+});
