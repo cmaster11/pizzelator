@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
-# Publishes web/dist as the only commit on the gh-pages branch. Runs in CI
-# (.github/workflows/pages.yml) with GH_TOKEN, GITHUB_REPOSITORY and
-# GITHUB_SHA set by GitHub Actions.
+# Publishes web/dist as the only commit on the gh-pages branch of <owner/repo>.
+# Runs in the KiCI publish job (.kici/workflows/ci.ts) from the checkout,
+# inside the job's write window, which supplies the push credential.
+#
+# Usage: scripts/publish-pages.sh <owner/repo> <published commit sha>
 set -euo pipefail
+
+repo="${1:?usage: publish-pages.sh <owner/repo> <sha>}"
+sha="${2:?usage: publish-pages.sh <owner/repo> <sha>}"
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 dist="$root/web/dist"
@@ -16,12 +21,16 @@ cp -R "$dist/." "$site/"
 # Serve files as built: no Jekyll processing.
 touch "$site/.nojekyll"
 
-cd "$site"
-git init -q -b gh-pages
-git config user.name "github-actions[bot]"
-git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-git add -A
-git commit -q -m "Publish ${GITHUB_SHA}"
-auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
-git -c "http.extraheader=AUTHORIZATION: basic $auth" \
-  push --force "https://github.com/${GITHUB_REPOSITORY}.git" gh-pages
+# Build the commit in the checkout's object store from a scratch index, so the
+# checkout's own index and working tree stay untouched.
+cd "$root"
+GIT_INDEX_FILE="$(mktemp -d)/index"
+export GIT_INDEX_FILE
+git --work-tree="$site" add -A
+tree="$(git write-tree)"
+commit="$(
+  GIT_AUTHOR_NAME="KiCI" GIT_AUTHOR_EMAIL="noreply@kici.dev" \
+    GIT_COMMITTER_NAME="KiCI" GIT_COMMITTER_EMAIL="noreply@kici.dev" \
+    git commit-tree "$tree" -m "Publish ${sha}"
+)"
+git push --force "git@github.com:${repo}.git" "${commit}:refs/heads/gh-pages"

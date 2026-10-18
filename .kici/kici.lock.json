@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 44,
+  "minReaderVersion": 42,
+  "source": {
+    "file": ".kici/workflows/ci.ts",
+    "export": "#default"
+  },
+  "contentHash": "adadacc2f3f9c48e7ab0668aec3ca5d5ba5eca4cdb9f0ecc3b5b4dcad0d9e66d",
+  "lockfileHash": "240d327d53f40757198c3cbe3bc084a1c524deda27b1921f1234b83bb4321770",
+  "workflows": [
+    {
+      "name": "ci",
+      "source": {
+        "file": ".kici/workflows/ci.ts",
+        "export": "#default"
+      },
+      "contentHash": "7c1d30f017052f28ab8409e4bd4c58a41f860ba2542b46459e729fa4c72daaf5",
+      "compileSchemaVersion": 7,
+      "triggers": [
+        {
+          "_type": "pr",
+          "events": [
+            "opened",
+            "synchronize",
+            "reopened",
+            "closed"
+          ],
+          "targetBranches": [
+            {
+              "type": "glob",
+              "pattern": "main"
+            }
+          ],
+          "sourceBranches": [],
+          "paths": []
+        },
+        {
+          "_type": "push",
+          "branches": [
+            {
+              "type": "glob",
+              "pattern": "main"
+            }
+          ],
+          "paths": []
+        }
+      ],
+      "jobs": [
+        {
+          "_type": "static",
+          "name": "check",
+          "runsOn": [
+            {
+              "kind": "exact",
+              "value": "linux"
+            },
+            {
+              "kind": "exact",
+              "value": "container"
+            }
+          ],
+          "runsOnPick": "deterministic",
+          "needs": [],
+          "steps": [
+            {
+              "name": "unshallow",
+              "hasOutputs": false,
+              "sourceLocation": {
+                "file": ".kici/workflows/ci.ts",
+                "line": 13,
+                "column": 3
+              }
+            },
+            {
+              "name": "install",
+              "hasOutputs": false,
+              "sourceLocation": {
+                "file": ".kici/workflows/ci.ts",
+                "line": 19,
+                "column": 3
+              }
+            },
+            {
+              "name": "lint",
+              "hasOutputs": false,
+              "sourceLocation": {
+                "file": ".kici/workflows/ci.ts",
+                "line": 23,
+                "column": 3
+              }
+            },
+            {
+              "name": "test",
+              "hasOutputs": false,
+              "sourceLocation": {
+                "file": ".kici/workflows/ci.ts",
+                "line": 26,
+                "column": 3
+              }
+            },
+            {
+              "name": "build",
+              "hasOutputs": false,
+              "sourceLocation": {
+                "file": ".kici/workflows/ci.ts",
+                "line": 29,
+                "column": 3
+              }
+            }
+          ],
+          "init": {
+            "mise": {
+              "version": "2026.5.1"
+            }
+          }
+        },
+        {
+          "_type": "static",
+          "name": "publish",
+          "runsOn": [
+            {
+              "kind": "exact",
+              "value": "linux"
+            },
+            {
+              "kind": "exact",
+              "value": "container"
+            }
+          ],
+          "runsOnPick": "deterministic",
+          "gitCredentials": {
+            "default": {
+              "kind": "ssh",
+              "privateKeySecret": "pages:PAGES_DEPLOY_KEY"
+            }
+          },
+          "needs": [
+            "check"
+          ],
+          "steps": [
+            {
+              "name": "publish",
+              "hasOutputs": false,
+              "sourceLocation": {
+                "file": ".kici/workflows/ci.ts",
+                "line": 51,
+                "column": 10
+              }
+            }
+          ],
+          "rules": [
+            {
+              "_type": "dynamic",
+              "label": "push to main",
+              "source": {
+                "file": ".kici/workflows/ci.ts",
+                "index": 100
+              }
+            }
+          ],
+          "contexts": [
+            {
+              "value": "pages",
+              "dynamic": false
+            }
+          ],
+          "init": {
+            "apt": {
+              "packages": [
+                "openssh-client"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

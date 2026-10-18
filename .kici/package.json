@@ -1,0 +1,14 @@
+{
+  "name": "@kici-dev/workflows",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "compile": "npx --yes kici@0.21.0 compile",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@kici-dev/sdk": "0.21.0",
+    "typescript": "6.0.3"
+  }
+}

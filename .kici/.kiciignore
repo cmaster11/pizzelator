@@ -1,0 +1,21 @@
+# Paths the workflow source digest does NOT cover.
+#
+# This file IS the exclusion list: it replaces the built-in defaults rather
+# than adding to them. The entries below are those defaults. Removing one
+# re-includes that path in the hash — and node_modules/, .npmrc and
+# package-lock.json are rewritten during a run, so dropping one makes the
+# hash change on every run and the drift gate reject it. `kici compile`
+# warns when that happens.
+#
+# Patterns are gitignore-style, relative to .kici/. Unrelated to the
+# repo-root .kiciignore, which selects what `kici run --remote` uploads.
+#
+# This file is itself hashed: which files define a workflow identity is
+# part of that identity, so editing it forces a recompile.
+
+node_modules/
+types/
+.npmrc
+package-lock.json
+pnpm-lock.yaml
+kici.lock.json

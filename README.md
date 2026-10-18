@@ -77,6 +77,7 @@ names carry it (`_crop<x>-<y>-<width>x<height>`).
 | `engine/tests/golden/` | Golden fixtures the engine must reproduce exactly                  |
 | `web/`                 | Vite + React + Mantine app; `web/src/engine/` runs the WASM engine |
 | `scripts/`             | Engine build, dev server and its systemd unit                      |
+| `.kici/`               | KiCI CI workflows (`workflows/ci.ts`) and their compiled lock file |
 | `assets/`              | The test image (a pizza) and the example photo (a city street)     |
 
 ## Development
@@ -115,9 +116,23 @@ Rules for working on the code are in `CLAUDE.md` and `.claude/rules/`.
 
 ## Deployment
 
-Every push to `main` runs `.github/workflows/pages.yml`: lint, tests and the
-production build, then `web/dist/` is pushed to the `gh-pages` branch, which
-GitHub Pages serves.
+CI runs on [KiCI](https://kici.dev). The `ci` workflow in
+`.kici/workflows/ci.ts` runs `mise run lint`, `mise run test` and
+`mise run build` on every pull request to `main` and every push to `main`.
+After a push to `main`, its `publish` job pushes `web/dist/` to the `gh-pages`
+branch (`scripts/publish-pages.sh`), which GitHub Pages serves.
+
+The orchestrator holds the push credential: a write deploy key on this
+repository, stored as the `PAGES_DEPLOY_KEY` secret of a `pages` context that
+admits only trusted runs on `main` of this repository.
+
+After editing a workflow, regenerate the lock file and commit it with the
+change:
+
+```sh
+pnpm --dir .kici install
+pnpm --dir .kici compile   # writes .kici/kici.lock.json
+```
 
 ## License
 
