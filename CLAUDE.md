@@ -33,10 +33,15 @@ Details: `.claude/rules/dev-server.md`.
 
 ## Deployment
 
-Every push to `main` runs `.github/workflows/pages.yml`: lint, tests and the
-production build, then `web/dist/` goes to the `gh-pages` branch, which
-GitHub Pages serves at `https://cmaster11.github.io/pizzelator/`. There is no
-other deployment. Work on a branch and merge to `main` to release.
+CI is KiCI, not GitHub Actions. `.kici/workflows/ci.ts` runs lint, tests and
+the production build on every pull request to `main` and every push to
+`main`; after a push to `main` it publishes `web/dist/` to the `gh-pages`
+branch, which GitHub Pages serves at `https://cmaster11.github.io/pizzelator/`.
+There is no other deployment. Work on a branch and merge to `main` to release.
+
+A change under `.kici/` ships with a regenerated `.kici/kici.lock.json`
+(`pnpm --dir .kici compile`): the orchestrator reads the lock file, and an
+agent refuses a run whose lock file does not match the workflow source.
 
 ## Commands
 

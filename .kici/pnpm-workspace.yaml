@@ -1,0 +1,8 @@
+# Refuse package versions published less than 48 hours ago, as the repo root
+# does. The KiCI SDK is pinned to the release the orchestrator runs, so its
+# packages are exempt at exactly that version.
+minimumReleaseAge: 2880
+minimumReleaseAgeExclude:
+  - '@kici-dev/core@0.24.0'
+  - '@kici-dev/engine@0.24.0'
+  - '@kici-dev/sdk@0.24.0'

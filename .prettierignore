@@ -5,3 +5,5 @@ pnpm-lock.yaml
 /web/playwright-report/
 /web/test-results/
 /tools/
+/.kici/kici.lock.json
+/.kici/types/

@@ -13,3 +13,5 @@ node_modules/
 
 # Design specs and plans stay local (.claude/rules/git.md)
 /docs/superpowers/
+.kici/node_modules/
+.kici/.secrets
