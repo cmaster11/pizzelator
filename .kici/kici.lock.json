@@ -5,7 +5,7 @@
     "file": ".kici/workflows/ci.ts",
     "export": "#default"
   },
-  "contentHash": "adadacc2f3f9c48e7ab0668aec3ca5d5ba5eca4cdb9f0ecc3b5b4dcad0d9e66d",
+  "contentHash": "1eaf3c9ecc7b172dd63b8ce58b23bef170249634538f96fa00a60fae8e201a58",
   "lockfileHash": "240d327d53f40757198c3cbe3bc084a1c524deda27b1921f1234b83bb4321770",
   "workflows": [
     {
@@ -14,7 +14,7 @@
         "file": ".kici/workflows/ci.ts",
         "export": "#default"
       },
-      "contentHash": "7c1d30f017052f28ab8409e4bd4c58a41f860ba2542b46459e729fa4c72daaf5",
+      "contentHash": "4b3827dfa7cf688c46df329a3a348d1ff077bb8125296793b536d4309687d871",
       "compileSchemaVersion": 7,
       "triggers": [
         {

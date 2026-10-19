@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@kici-dev/sdk':
-        specifier: 0.21.0
-        version: 0.21.0
+        specifier: 0.24.0
+        version: 0.24.0
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -40,16 +40,16 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kici-dev/core@0.21.0':
-    resolution: {integrity: sha512-ZW2YAoDHEYL5XAj2umRmriePdWviPfHmHt1uUCui1iOEhnoSGaQVMeROY67KSdEfq7OOkBr8/ufVop1hWCNymQ==}
+  '@kici-dev/core@0.24.0':
+    resolution: {integrity: sha512-7Ah5K0302jUDnO5N7FRhRV4SKShDr/C8qu0GEru5Jwd6k5p0/9eu3LM5OltOZnDGLULnQFBtK1p0ZSBGNTxZSg==}
     engines: {node: '>=24.5.0'}
 
-  '@kici-dev/engine@0.21.0':
-    resolution: {integrity: sha512-PbsSH0yVsJFdlqZCPuWeVTtvRSwl846v1G5XJjlWSMRRUTl/XGa6EocJ9wh6F6XSm4HBwAmDeqnsFQjwlgO0sQ==}
+  '@kici-dev/engine@0.24.0':
+    resolution: {integrity: sha512-QkXEIEINR/AoroSif43Q0FDRlAD/yfzzyUQaKaDPUk8Z9Pwnyi0Zj40Sn8ioWpn74I/DUJMI8n9fomKkaneDaA==}
     engines: {node: '>=24.5.0'}
 
-  '@kici-dev/sdk@0.21.0':
-    resolution: {integrity: sha512-oIE/7Fks6SXMfOh7b4WyH1Xy2vCi38tvLFlvtiG2LkQzHFDiFZ+dfW4xFsgVR7FISd4ONdSMyxF5ECS5e4rUpA==}
+  '@kici-dev/sdk@0.24.0':
+    resolution: {integrity: sha512-HiVGM97ViE8HkiwNNySK+iY2Iz+AEmOLjR0lJ54IxCdVJyAqKEAi38K2C0fEzdZuu/yMGklWZRgWT7pj3v2Rvw==}
     engines: {node: '>=24.5.0'}
 
   '@oxc-transform/binding-android-arm-eabi@0.150.0':
@@ -371,7 +371,7 @@ snapshots:
     dependencies:
       jsep: 1.6.0
 
-  '@kici-dev/core@0.21.0':
+  '@kici-dev/core@0.24.0':
     dependencies:
       oxc-transform: 0.150.0
       picocolors: 1.1.1
@@ -380,7 +380,7 @@ snapshots:
       zod: 4.6.7
       zx: 8.8.5
 
-  '@kici-dev/engine@0.21.0':
+  '@kici-dev/engine@0.24.0':
     dependencies:
       jose: 6.2.12
       jsonpath-plus: 10.4.0
@@ -389,10 +389,10 @@ snapshots:
       yaml: 2.9.1
       zod: 4.6.7
 
-  '@kici-dev/sdk@0.21.0':
+  '@kici-dev/sdk@0.24.0':
     dependencies:
-      '@kici-dev/core': 0.21.0
-      '@kici-dev/engine': 0.21.0
+      '@kici-dev/core': 0.24.0
+      '@kici-dev/engine': 0.24.0
       micromatch: 4.0.8
       yaml: 2.9.1
       zod: 4.6.7
